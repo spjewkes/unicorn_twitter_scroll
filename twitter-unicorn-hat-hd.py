@@ -40,23 +40,6 @@ col_max = 32
 col_index = 0
 colours = [tuple([int(n * 255) for n in colorsys.hsv_to_rgb(x/float(col_max), 1.0, 1.0)]) for x in range(col_max)]
 
-with open('twitter.json', 'r') as myfile:
-   data = json.load(myfile)
-
-# enter your twitter app keys here
-# you can get these at apps.twitter.com
-consumer_key = data["consumer_key"]
-consumer_secret = data["consumer_secret"]
-
-access_token = data["access_token"]
-access_token_secret = data["access_token_secret"]
-
-FONT = (data["font"]["name"], data["font"]["size"])
-
-if consumer_key == '' or consumer_secret == '' or access_token == '' or access_token_secret == '':
-    print("You need to configure your Twitter API keys! Edit this file for more information!")
-    exit(0)
-
 # make FIFO queue
 q = queue.Queue()
 
@@ -109,7 +92,6 @@ def mainloop():
     while True:
         # grab the tweet string from the queue
         try:
-            # scrollphathd.clear()
             status = q.get(False)
             scroll_text(status)
             q.task_done()
@@ -135,8 +117,24 @@ class MyStreamListener(tweepy.StreamListener):
 try: 
     parser = argparse.ArgumentParser(description='Scan for keywords on Twitter and scroll on Unicorn Hat HD.')
     parser.add_argument('--keyword', help="Keyoard to search for can be a hashtag or a word (default 'cool')", nargs='?', type=str, default="cool")
+    parser.add_argument('--config', help="Config file to load", nargs='?', type=str, default="default.json")
     args = parser.parse_args()
                         
+    with open(args.config, 'r') as myfile:
+        data = json.load(myfile)
+
+    # enter your twitter app keys here
+    # you can get these at apps.twitter.com
+    consumer_key = data["consumer_key"]
+    consumer_secret = data["consumer_secret"]
+
+    access_token = data["access_token"]
+    access_token_secret = data["access_token_secret"]
+
+    if consumer_key == '' or consumer_secret == '' or access_token == '' or access_token_secret == '':
+        print("You need to configure your Twitter API keys! Edit this file for more information!")
+        exit(0)
+
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
@@ -145,6 +143,8 @@ try:
     myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
 
     myStream.filter(track=[args.keyword], stall_warnings=True, async=True)
+
+    FONT = (data["font"]["name"], data["font"]["size"])
 
     mainloop()
 
