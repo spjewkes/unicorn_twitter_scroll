@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # This is a mash-up of two Pimoroni examples. The twitter scroll that used the scroll phat HD mixed with a
 # text scroller for the unicorn HD. As both of these are MIT licences, this code is also using the same.
@@ -6,7 +7,6 @@
 import colorsys
 import signal
 import time
-import unicodedata
 import json
 try:
     import queue
@@ -29,16 +29,20 @@ import unicornhathd
 # Use `fc-list` to show a list of installed fonts on your system,
 # or `ls /usr/share/fonts/` and explore.
 
-# FONT = ("/usr/share/fonts/truetype/freefont/FreeSansBold.ttf", 12)
+FONT = ("/usr/share/fonts/truetype/freefont/FreeSansBold.ttf", 12)
 
 # sudo apt install fonts-droid
 # FONT = ("/usr/share/fonts/truetype/droid/DroidSans.ttf", 12)
 
 # sudo apt install fonts-roboto
-FONT = ("/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf", 10)
+# FONT = ("/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf", 10)
 
 # adjust the tracked keyword below to your keyword or #hashtag
-keyword = '#tuesdaythoughts'
+keyword = u'#tuesdaythoughts'
+
+col_max = 32
+col_index = 0
+colours = [tuple([int(n * 255) for n in colorsys.hsv_to_rgb(x/float(col_max), 1.0, 1.0)]) for x in range(col_max)]
 
 with open('twitter.json', 'r') as myfile:
    data = json.load(myfile)
@@ -69,7 +73,6 @@ def scroll_text(text):
     font = ImageFont.truetype(font_file, font_size)
 
     text_width, text_height = width, 0
-    colours = [tuple([int(n * 255) for n in colorsys.hsv_to_rgb(x/float(len(text)), 1.0, 1.0)]) for x in range(len(text))]
 
     for line in text.splitlines():
         w, h = font.getsize(line)
@@ -83,9 +86,14 @@ def scroll_text(text):
 
     offset_left = 0
 
+    global col_index
+
     for index, line in enumerate(text.splitlines()):
-        draw.text((text_x + offset_left, text_y), line, colours[index], font=font)
+        draw.text((text_x + offset_left, text_y), line, colours[col_index], font=font)
         offset_left += font.getsize(line)[0] + width
+        col_index += 1
+        if col_index >= col_max:
+            col_index = 0
 
     for scroll in range(text_width - width):
         for x in range(width):
@@ -118,10 +126,6 @@ class MyStreamListener(tweepy.StreamListener):
         if not status.text.startswith('RT'):
             # format the incoming tweet string
             status = u'     >>>>>     @{name}: {text}     '.format(name=status.user.screen_name.upper(), text=status.text.upper())
-            try:
-                status = unicodedata.normalize('NFKD', status).encode('ascii', 'ignore')
-            except BaseException as e:
-                print(e)
 
             # put tweet into the fifo queue
             q.put(status)
