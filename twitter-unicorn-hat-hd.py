@@ -35,7 +35,7 @@ import unicornhathd
 # "font" : { "name" : "/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf", "size" : 10 }
 
 # adjust the tracked keyword below to your keyword or #hashtag
-keyword = u'#tuesdaythoughts'
+keyword = u'cool'
 
 col_max = 32
 col_index = 0
