@@ -28,14 +28,11 @@ import unicornhathd
 
 # Use `fc-list` to show a list of installed fonts on your system,
 # or `ls /usr/share/fonts/` and explore.
-
-FONT = ("/usr/share/fonts/truetype/freefont/FreeSansBold.ttf", 12)
-
+# Examples:
 # sudo apt install fonts-droid
-# FONT = ("/usr/share/fonts/truetype/droid/DroidSans.ttf", 12)
-
+# "font" : { "name" : "/usr/share/fonts/truetype/droid/DroidSans.ttf", "size" : 12 }
 # sudo apt install fonts-roboto
-# FONT = ("/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf", 10)
+# "font" : { "name" : "/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf", "size" : 10 }
 
 # adjust the tracked keyword below to your keyword or #hashtag
 keyword = u'#tuesdaythoughts'
@@ -54,6 +51,8 @@ consumer_secret = data["consumer_secret"]
 
 access_token = data["access_token"]
 access_token_secret = data["access_token_secret"]
+
+FONT = (data["font"]["name"], data["font"]["size"])
 
 if consumer_key == '' or consumer_secret == '' or access_token == '' or access_token_secret == '':
     print("You need to configure your Twitter API keys! Edit this file for more information!")

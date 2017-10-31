@@ -3,4 +3,8 @@
     "consumer_secret" : "",
     "access_token" : "",
     "access_token_secret" : ""
+    "font" : {
+	"name" : "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+	"size" : 12
+    }
 }
