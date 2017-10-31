@@ -8,6 +8,8 @@ import colorsys
 import signal
 import time
 import json
+import argparse
+
 try:
     import queue
 except ImportError:
@@ -33,9 +35,6 @@ import unicornhathd
 # "font" : { "name" : "/usr/share/fonts/truetype/droid/DroidSans.ttf", "size" : 12 }
 # sudo apt install fonts-roboto
 # "font" : { "name" : "/usr/share/fonts/truetype/roboto/Roboto-Bold.ttf", "size" : 10 }
-
-# adjust the tracked keyword below to your keyword or #hashtag
-keyword = u'cool'
 
 col_max = 32
 col_index = 0
@@ -133,17 +132,20 @@ class MyStreamListener(tweepy.StreamListener):
             return False
 
 
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
-api = tweepy.API(auth)
+try: 
+    parser = argparse.ArgumentParser(description='Scan for keywords on Twitter and scroll on Unicorn Hat HD.')
+    parser.add_argument('--keyword', help="Keyoard to search for can be a hashtag or a word (default 'cool')", nargs='?', type=str, default="cool")
+    args = parser.parse_args()
+                        
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
 
-myStreamListener = MyStreamListener()
-myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
+    myStreamListener = MyStreamListener()
+    myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
 
-myStream.filter(track=[keyword], stall_warnings=True, async=True)
+    myStream.filter(track=[args.keyword], stall_warnings=True, async=True)
 
-
-try:
     mainloop()
 
 except KeyboardInterrupt:
