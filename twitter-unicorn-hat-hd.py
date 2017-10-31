@@ -68,9 +68,7 @@ def scroll_text(text):
     text_x = width
     text_y = 2
 
-    font_file, font_size = FONT
-    font = ImageFont.truetype(font_file, font_size)
-
+    font = ImageFont.truetype(*FONT)
     text_width, text_height = width, 0
 
     for line in text.splitlines():
