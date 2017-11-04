@@ -46,9 +46,6 @@ col_max = 32
 col_index = 0
 colours = [tuple([int(n * 255) for n in colorsys.hsv_to_rgb(x/float(col_max), 1.0, 1.0)]) for x in range(col_max)]
 
-# make FIFO queue
-q = queue.Queue()
-
 def scroll_text(text):
     print(text)
     
@@ -95,6 +92,9 @@ def mainloop(args, config):
     unicornhathd.rotation(config["unicornhathd"]["rotation"])
     unicornhathd.brightness(config["unicornhathd"]["brightness"])
 
+    # Wait a moment to allow the chance for the queue to start filling up
+    time.sleep(5)
+
     while True:
         # grab the tweet string from the queue
         try:
@@ -107,7 +107,13 @@ def mainloop(args, config):
             time.sleep(5)
 
 class MyStreamListener(tweepy.StreamListener):
+    def __init__(self, args, config):
+        super(MyStreamListener, self).__init__()
+        self.args = args
+        self.config = config
+
     def on_status(self, status):
+        # if not status.text.startswith('RT') and not q.full():
         if not status.text.startswith('RT'):
             # format the incoming tweet string
             status_text = BeautifulSoup(status.text, "html.parser").text
@@ -115,8 +121,14 @@ class MyStreamListener(tweepy.StreamListener):
                 status_text = BeautifulSoup(status.extended_tweet["full_text"], "html.parser").text
             text = u'     >>>>> [{date}]    {name} (@{screen_name}): {text}'.format(name=status.user.name, screen_name=status.user.screen_name, text=status_text, date=status.created_at)
 
-            # put tweet into the fifo queue
-            q.put(text)
+            try:
+                # put tweet into the fifo queue
+                q.put(text, False)
+
+            except queue.Full:
+                # The queue is too full, so drop this message
+                if args.verbose:
+                    print text.replace(">>>>>", "-----")
 
     def on_error(self, status_code):
         print("Error: {}".format(status_code))
@@ -128,10 +140,14 @@ try:
     parser = argparse.ArgumentParser(description='Scan for keywords on Twitter and scroll on Unicorn Hat HD.')
     parser.add_argument('--keyword', help="Keyoard to search for can be a hashtag or a word (default 'cool')", nargs='?', type=str, default="cool")
     parser.add_argument('--config', help="Config file to load", nargs='?', type=str, default="default.json")
+    parser.add_argument('--verbose', help="Enables verbose output on command line (including any dropped tweets)", action='store_true')
     args = parser.parse_args()
                         
     with open(args.config, 'r') as myfile:
         config = json.load(myfile)
+
+    # make FIFO queue
+    q = queue.Queue(config["max_queue_size"])
 
     # enter your twitter app keys here
     # you can get these at apps.twitter.com
@@ -149,7 +165,7 @@ try:
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    myStreamListener = MyStreamListener()
+    myStreamListener = MyStreamListener(args, config)
     myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
 
     myStream.filter(track=[args.keyword], stall_warnings=True, async=True)
