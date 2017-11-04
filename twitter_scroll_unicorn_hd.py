@@ -109,6 +109,8 @@ class MyStreamListener(tweepy.StreamListener):
         if not status.text.startswith('RT'):
             # format the incoming tweet string
             status_text = BeautifulSoup(status.text, "html.parser").text
+            if status.truncated:
+                status_text = BeautifulSoup(status.extended_tweet["full_text"], "html.parser").text
             text = u'     >>>>> [{date}]    {name} (@{screen_name}): {text}'.format(name=status.user.name, screen_name=status.user.screen_name, text=status_text, date=status.created_at)
 
             # put tweet into the fifo queue
