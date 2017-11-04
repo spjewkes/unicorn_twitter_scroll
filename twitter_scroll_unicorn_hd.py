@@ -9,6 +9,7 @@ import signal
 import time
 import json
 import argparse
+from datetime import datetime
 
 try:
     import queue
@@ -90,7 +91,7 @@ def scroll_text(text):
         time.sleep(0.01)
     
 # define main loop to fetch formatted tweet from queue
-def mainloop(config):
+def mainloop(args, config):
     unicornhathd.rotation(config["unicornhathd"]["rotation"])
     unicornhathd.brightness(config["unicornhathd"]["brightness"])
 
@@ -102,7 +103,8 @@ def mainloop(config):
             q.task_done()
 
         except queue.Empty:
-            time.sleep(1)
+            q.put(u'     >>>>> [{date}]    Nothing found for "{keyword}"'.format(date=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),keyword=args.keyword))
+            time.sleep(5)
 
 class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
@@ -154,7 +156,7 @@ try:
 
     FONT = (config["font"]["name"], config["font"]["size"])
 
-    mainloop(config)
+    mainloop(args, config)
 
 except KeyboardInterrupt:
     myStream.disconnect()
