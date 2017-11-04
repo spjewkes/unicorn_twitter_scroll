@@ -90,9 +90,9 @@ def scroll_text(text):
         time.sleep(0.01)
     
 # define main loop to fetch formatted tweet from queue
-def mainloop():
-    unicornhathd.rotation(90)
-    unicornhathd.brightness(1.0)
+def mainloop(config):
+    unicornhathd.rotation(config["unicornhathd"]["rotation"])
+    unicornhathd.brightness(config["unicornhathd"]["brightness"])
 
     while True:
         # grab the tweet string from the queue
@@ -129,15 +129,15 @@ try:
     args = parser.parse_args()
                         
     with open(args.config, 'r') as myfile:
-        data = json.load(myfile)
+        config = json.load(myfile)
 
     # enter your twitter app keys here
     # you can get these at apps.twitter.com
-    consumer_key = data["consumer_key"]
-    consumer_secret = data["consumer_secret"]
+    consumer_key = config["consumer_key"]
+    consumer_secret = config["consumer_secret"]
 
-    access_token = data["access_token"]
-    access_token_secret = data["access_token_secret"]
+    access_token = config["access_token"]
+    access_token_secret = config["access_token_secret"]
 
     if consumer_key == '' or consumer_secret == '' or access_token == '' or access_token_secret == '':
         print("You need to configure your Twitter API keys! Edit this file for more information!")
@@ -152,9 +152,9 @@ try:
 
     myStream.filter(track=[args.keyword], stall_warnings=True, async=True)
 
-    FONT = (data["font"]["name"], data["font"]["size"])
+    FONT = (config["font"]["name"], config["font"]["size"])
 
-    mainloop()
+    mainloop(config)
 
 except KeyboardInterrupt:
     myStream.disconnect()
