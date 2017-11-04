@@ -92,8 +92,8 @@ def mainloop():
     while True:
         # grab the tweet string from the queue
         try:
-            status = q.get(False)
-            scroll_text(status)
+            text = q.get(False)
+            scroll_text(text)
             q.task_done()
 
         except queue.Empty:
@@ -103,10 +103,10 @@ class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
         if not status.text.startswith('RT'):
             # format the incoming tweet string
-            status = u'     >>>>>     @{name}: {text}     '.format(name=status.user.screen_name.upper(), text=status.text.upper())
+            text = u'     >>>>> [{date}]    {name} (@{screen_name}): {text}'.format(name=status.user.name, screen_name=status.user.screen_name, text=status.text, date=status.created_at)
 
             # put tweet into the fifo queue
-            q.put(status)
+            q.put(text)
 
     def on_error(self, status_code):
         print("Error: {}".format(status_code))
