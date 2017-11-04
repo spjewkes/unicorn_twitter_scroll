@@ -26,6 +26,11 @@ try:
 except ImportError:
     exit("This script requires the pillow module\nInstall with: sudo pip install pillow")
 
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    exit("This script requires the BeautifulSoup module\nInstall with: sudo pip install beautifulsoup4")
+    
 import unicornhathd
 
 # Use `fc-list` to show a list of installed fonts on your system,
@@ -103,7 +108,8 @@ class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
         if not status.text.startswith('RT'):
             # format the incoming tweet string
-            text = u'     >>>>> [{date}]    {name} (@{screen_name}): {text}'.format(name=status.user.name, screen_name=status.user.screen_name, text=status.text, date=status.created_at)
+            status_text = BeautifulSoup(status.text, "html.parser").text
+            text = u'     >>>>> [{date}]    {name} (@{screen_name}): {text}'.format(name=status.user.name, screen_name=status.user.screen_name, text=status_text, date=status.created_at)
 
             # put tweet into the fifo queue
             q.put(text)
