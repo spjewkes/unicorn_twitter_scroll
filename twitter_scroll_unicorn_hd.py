@@ -138,7 +138,7 @@ class MyStreamListener(tweepy.StreamListener):
 
 try: 
     parser = argparse.ArgumentParser(description='Scan for keywords on Twitter and scroll on Unicorn Hat HD.')
-    parser.add_argument('--keyword', help="Keyoard to search for can be a hashtag or a word (default 'cool')", nargs='?', type=str, default="cool")
+    parser.add_argument('--keyword', help="Keyoards to search for. This can be a comma separated list for multiple keywords (default 'cool')", nargs='?', type=str, default="cool")
     parser.add_argument('--config', help="Config file to load", nargs='?', type=str, default="default.json")
     parser.add_argument('--verbose', help="Enables verbose output on command line (including any dropped tweets)", action='store_true')
     args = parser.parse_args()
