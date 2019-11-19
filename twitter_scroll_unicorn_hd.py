@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # This is a mash-up of two Pimoroni examples. The twitter scroll that used the scroll phat HD mixed with a
@@ -20,17 +20,17 @@ from sys import exit
 try:
     import tweepy
 except ImportError:
-    exit("This script requires the tweepy module\nInstall with: sudo pip install tweepy")
+    exit("This script requires the tweepy module\nInstall with: sudo pip3 install tweepy")
 
 try:
     from PIL import Image, ImageDraw, ImageFont
 except ImportError:
-    exit("This script requires the pillow module\nInstall with: sudo pip install pillow")
+    exit("This script requires the pillow module\nInstall with: sudo pip3 install pillow")
 
 try:
     from bs4 import BeautifulSoup
 except ImportError:
-    exit("This script requires the BeautifulSoup module\nInstall with: sudo pip install beautifulsoup4")
+    exit("This script requires the BeautifulSoup module\nInstall with: sudo pip3 install beautifulsoup4")
     
 import unicornhathd
 
@@ -128,7 +128,7 @@ class MyStreamListener(tweepy.StreamListener):
             except queue.Full:
                 # The queue is too full, so drop this message
                 if args.verbose:
-                    print text.replace(">>>>>", "-----")
+                    print(text.replace(">>>>>", "-----"))
 
     def on_error(self, status_code):
         print("Error: {}".format(status_code))
@@ -168,7 +168,7 @@ try:
     myStreamListener = MyStreamListener(args, config)
     myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
 
-    myStream.filter(track=[args.keyword], stall_warnings=True, async=True)
+    myStream.filter(track=[args.keyword], stall_warnings=True, is_async=True)
 
     FONT = (config["font"]["name"], config["font"]["size"])
 
